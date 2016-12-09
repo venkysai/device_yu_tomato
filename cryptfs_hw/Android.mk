@@ -2,6 +2,11 @@ ifeq ($(TARGET_HW_DISK_ENCRYPTION),true)
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
 
+<<<<<<< HEAD
+=======
+LOCAL_PROPRIETARY_MODULE := true
+
+>>>>>>> 5aad421... Add cryptfs_hw
 sourceFiles := \
                cryptfs_hw.c
 
@@ -9,6 +14,7 @@ commonSharedLibraries := \
                         libcutils \
                         libutils \
                         libdl \
+<<<<<<< HEAD
                         libhardware \
                         liblog
 
@@ -17,6 +23,11 @@ commonIncludes := \
                   $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include \
 
 LOCAL_ADDITIONAL_DEPENDENCIES := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
+=======
+                        libhardware
+commonIncludes := \
+                  hardware/libhardware/include/hardware/
+>>>>>>> 5aad421... Add cryptfs_hw
 
 LOCAL_C_INCLUDES := $(commonIncludes)
 LOCAL_SRC_FILES := $(sourceFiles)
@@ -37,6 +48,7 @@ ifeq ($(TARGET_USE_UFS_ICE),true)
 LOCAL_CFLAGS += -DUSE_ICE_FOR_STORAGE_ENCRYPTION
 endif
 
+<<<<<<< HEAD
 ifeq ($(TARGET_LEGACY_HW_DISK_ENCRYPTION),true)
 LOCAL_CFLAGS += -DLEGACY_HW_DISK_ENCRYPTION
 endif
@@ -45,5 +57,7 @@ ifeq ($(TARGET_KEYMASTER_WAIT_FOR_QSEE),true)
 LOCAL_CFLAGS += -DWAIT_FOR_QSEE
 endif
 
+=======
+>>>>>>> 5aad421... Add cryptfs_hw
 include $(BUILD_SHARED_LIBRARY)
 endif

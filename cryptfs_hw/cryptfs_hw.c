@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /* Copyright (c) 2014, 2017, The Linux Foundation. All rights reserved.
+=======
+/* Copyright (c) 2014, The Linux Foundation. All rights reserved.
+>>>>>>> 5aad421... Add cryptfs_hw
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
@@ -26,6 +30,10 @@
  * IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+<<<<<<< HEAD
+=======
+#include <cryptfs_hw.h>
+>>>>>>> 5aad421... Add cryptfs_hw
 #include <stdlib.h>
 #include <string.h>
 #include <sys/limits.h>
@@ -34,12 +42,16 @@
 #include <fcntl.h>
 #include <dirent.h>
 #include <dlfcn.h>
+<<<<<<< HEAD
 #include <linux/qseecom.h>
+=======
+>>>>>>> 5aad421... Add cryptfs_hw
 #include "cutils/log.h"
 #include "cutils/properties.h"
 #include "cutils/android_reboot.h"
 #include "keymaster_common.h"
 #include "hardware.h"
+<<<<<<< HEAD
 #include "cryptfs_hw.h"
 
 #ifdef LEGACY_HW_DISK_ENCRYPTION
@@ -64,16 +76,43 @@
 #define SET_HW_DISK_ENC_KEY				1
 #define UPDATE_HW_DISK_ENC_KEY				2
 #define MAX_DEVICE_ID_LENGTH				4 /* 4 = 3 (MAX_SOC_ID_LENGTH) + 1 */
+=======
+
+
+// When device comes up or when user tries to change the password, user can
+// try wrong password upto a certain number of times. If user enters wrong
+// password further, HW would wipe all disk encryption related crypto data
+// and would return an error ERR_MAX_PASSWORD_ATTEMPTS to VOLD. VOLD would
+// wipe userdata partition once this error is received.
+#define ERR_MAX_PASSWORD_ATTEMPTS -10
+#define QSEECOM_DISK_ENCRYPTION 1
+#define QSEECOM_UFS_ICE_DISK_ENCRYPTION 3
+#define QSEECOM_SDCC_ICE_DISK_ENCRYPTION 4
+#define MAX_PASSWORD_LEN 32
+#define QTI_ICE_STORAGE_UFS 1
+#define QTI_ICE_STORAGE_SDCC 2
+
+/* Operations that be performed on HW based device encryption key */
+#define SET_HW_DISK_ENC_KEY 1
+#define UPDATE_HW_DISK_ENC_KEY 2
+#define MAX_DEVICE_ID_LENGTH 4 /* 4 = 3 (MAX_SOC_ID_LENGTH) + 1 */
+>>>>>>> 5aad421... Add cryptfs_hw
 
 static unsigned int cpu_id[] = {
 	239, /* MSM8939 SOC ID */
 };
 
+<<<<<<< HEAD
 #ifdef LEGACY_HW_DISK_ENCRYPTION
+=======
+#define KEYMASTER_PARTITION_NAME "/dev/block/bootdevice/by-name/keymaster"
+
+>>>>>>> 5aad421... Add cryptfs_hw
 static int loaded_library = 0;
 static int (*qseecom_create_key)(int, void*);
 static int (*qseecom_update_key)(int, void*, void*);
 static int (*qseecom_wipe_key)(int);
+<<<<<<< HEAD
 #endif
 
 #define CRYPTFS_HW_KMS_CLEAR_KEY			0
@@ -271,16 +310,27 @@ static int cryptfs_hw_update_key(enum cryptfs_hw_key_management_usage_type usage
 	return ret;
 }
 #endif
+=======
+>>>>>>> 5aad421... Add cryptfs_hw
 
 static int map_usage(int usage)
 {
     int storage_type = is_ice_enabled();
+<<<<<<< HEAD
     if (usage == CRYPTFS_HW_KM_USAGE_DISK_ENCRYPTION) {
         if (storage_type == QCOM_ICE_STORAGE_UFS) {
             return CRYPTFS_HW_KM_USAGE_UFS_ICE_DISK_ENCRYPTION;
         }
         else if (storage_type == QCOM_ICE_STORAGE_SDCC) {
             return CRYPTFS_HW_KM_USAGE_SDCC_ICE_DISK_ENCRYPTION;
+=======
+    if (usage == QSEECOM_DISK_ENCRYPTION) {
+        if (storage_type == QTI_ICE_STORAGE_UFS) {
+            return QSEECOM_UFS_ICE_DISK_ENCRYPTION;
+        }
+        else if (storage_type == QTI_ICE_STORAGE_SDCC) {
+            return QSEECOM_SDCC_ICE_DISK_ENCRYPTION ;
+>>>>>>> 5aad421... Add cryptfs_hw
         }
     }
     return usage;
@@ -293,8 +343,13 @@ static unsigned char* get_tmp_passwd(const char* passwd)
     if(passwd) {
         tmp_passwd = (unsigned char*)malloc(MAX_PASSWORD_LEN);
         if(tmp_passwd) {
+<<<<<<< HEAD
             secure_memset(tmp_passwd, 0, MAX_PASSWORD_LEN);
             passwd_len = strnlen(passwd, MAX_PASSWORD_LEN);
+=======
+            memset(tmp_passwd, 0, MAX_PASSWORD_LEN);
+            passwd_len = (strlen(passwd) > MAX_PASSWORD_LEN) ? MAX_PASSWORD_LEN : strlen(passwd);
+>>>>>>> 5aad421... Add cryptfs_hw
             memcpy(tmp_passwd, passwd, passwd_len);
         } else {
             SLOGE("%s: Failed to allocate memory for tmp passwd \n", __func__);
@@ -305,6 +360,7 @@ static unsigned char* get_tmp_passwd(const char* passwd)
     return tmp_passwd;
 }
 
+<<<<<<< HEAD
 #ifdef WAIT_FOR_QSEE
 static int is_qseecom_up()
 {
@@ -332,12 +388,28 @@ static int is_qseecom_up()
 #endif
 
 #ifdef LEGACY_HW_DISK_ENCRYPTION
+=======
+static void wipe_userdata()
+{
+    mkdir("/cache/recovery", 0700);
+    int fd = open("/cache/recovery/command", O_RDWR|O_CREAT|O_TRUNC|O_NOFOLLOW, 0600);
+    if (fd >= 0) {
+        write(fd, "--wipe_data", strlen("--wipe_data") + 1);
+        close(fd);
+    } else {
+        SLOGE("could not open /cache/recovery/command\n");
+    }
+    android_reboot(ANDROID_RB_RESTART2, 0, "recovery");
+}
+
+>>>>>>> 5aad421... Add cryptfs_hw
 static int load_qseecom_library()
 {
     const char *error = NULL;
     if (loaded_library)
         return loaded_library;
 
+<<<<<<< HEAD
     if (!is_qseecom_up()) {
         SLOGE("Timed out waiting for QSEECom listeners. Aborting FDE key operation");
         return 0;
@@ -354,6 +426,23 @@ static int load_qseecom_library()
             if ((error = dlerror()) == NULL) {
                 SLOGD("Success loading QSEECom_update_key_user_info\n");
                 *(void **) (&qseecom_wipe_key) = dlsym(handle, "QSEECom_wipe_key");
+=======
+#ifdef __LP64__
+    void * handle = dlopen("/vendor/lib64/libQSEEComAPI.so", RTLD_NOW);
+#else
+    void * handle = dlopen("/vendor/lib/libQSEEComAPI.so", RTLD_NOW);
+#endif
+    if(handle) {
+        dlerror(); /* Clear any existing error */
+        *(void **) (&qseecom_create_key) = dlsym(handle,"QSEECom_create_key");
+
+        if((error = dlerror()) == NULL) {
+            SLOGD("Success loading QSEECom_create_key \n");
+            *(void **) (&qseecom_update_key) = dlsym(handle,"QSEECom_update_key_user_info");
+            if ((error = dlerror()) == NULL) {
+                SLOGD("Success loading QSEECom_update_key_user_info\n");
+                *(void **) (&qseecom_wipe_key) = dlsym(handle,"QSEECom_wipe_key");
+>>>>>>> 5aad421... Add cryptfs_hw
                 if ((error = dlerror()) == NULL) {
                     loaded_library = 1;
                     SLOGD("Success loading QSEECom_wipe_key \n");
@@ -368,12 +457,19 @@ static int load_qseecom_library()
         SLOGE("Could not load libQSEEComAPI.so \n");
     }
 
+<<<<<<< HEAD
     if (error)
+=======
+    if(error)
+>>>>>>> 5aad421... Add cryptfs_hw
         dlclose(handle);
 
     return loaded_library;
 }
+<<<<<<< HEAD
 #endif
+=======
+>>>>>>> 5aad421... Add cryptfs_hw
 
 /*
  * For NON-ICE targets, it would return 0 on success. On ICE based targets,
@@ -382,6 +478,7 @@ static int load_qseecom_library()
 static int set_key(const char* currentpasswd, const char* passwd, const char* enc_mode, int operation)
 {
     int err = -1;
+<<<<<<< HEAD
     if (is_hw_disk_encryption(enc_mode) && is_qseecom_up()
 #ifdef LEGACY_HW_DISK_ENCRYPTION
             && load_qseecom_library()
@@ -403,6 +500,22 @@ static int set_key(const char* currentpasswd, const char* passwd, const char* en
                     SLOGI("Maximum wrong password attempts reached, will erase userdata\n");
             }
             secure_memset(tmp_passwd, 0, MAX_PASSWORD_LEN);
+=======
+    if (is_hw_disk_encryption(enc_mode) && load_qseecom_library()) {
+        unsigned char* tmp_passwd = get_tmp_passwd(passwd);
+        unsigned char* tmp_currentpasswd = get_tmp_passwd(currentpasswd);
+        if(tmp_passwd) {
+            if (operation == UPDATE_HW_DISK_ENC_KEY) {
+                if (tmp_currentpasswd)
+                   err = qseecom_update_key(map_usage(QSEECOM_DISK_ENCRYPTION), tmp_currentpasswd, tmp_passwd);
+            } else if (operation == SET_HW_DISK_ENC_KEY) {
+                err = qseecom_create_key(map_usage(QSEECOM_DISK_ENCRYPTION), tmp_passwd);
+            }
+            if(err < 0) {
+                if(ERR_MAX_PASSWORD_ATTEMPTS == err)
+                    wipe_userdata();
+            }
+>>>>>>> 5aad421... Add cryptfs_hw
             free(tmp_passwd);
             free(tmp_currentpasswd);
         }
@@ -432,6 +545,17 @@ unsigned int is_hw_disk_encryption(const char* encryption_mode)
     return ret;
 }
 
+<<<<<<< HEAD
+=======
+int clear_hw_device_encryption_key(void)
+{
+    if (load_qseecom_library())
+        return qseecom_wipe_key(map_usage(QSEECOM_DISK_ENCRYPTION));
+
+    return 0;
+}
+
+>>>>>>> 5aad421... Add cryptfs_hw
 /*
  * By default HW FDE is enabled, if the execution comes to
  * is_hw_fde_enabled() API then for specific device/soc id,
@@ -495,15 +619,23 @@ int is_ice_enabled(void)
       /* All UFS based devices has ICE in it. So we dont need
        * to check if corresponding device exists or not
        */
+<<<<<<< HEAD
       storage_type = QCOM_ICE_STORAGE_UFS;
     } else if (strstr(prop_storage, "sdhc")) {
       if (access("/dev/icesdcc", F_OK) != -1)
         storage_type = QCOM_ICE_STORAGE_SDCC;
+=======
+      storage_type = QTI_ICE_STORAGE_UFS;
+    } else if (strstr(prop_storage, "sdhc")) {
+      if (access("/dev/icesdcc", F_OK) != -1)
+        storage_type = QTI_ICE_STORAGE_SDCC;
+>>>>>>> 5aad421... Add cryptfs_hw
     }
   }
   return storage_type;
 }
 
+<<<<<<< HEAD
 int clear_hw_device_encryption_key()
 {
 	if (is_qseecom_up()
@@ -515,6 +647,8 @@ int clear_hw_device_encryption_key()
 	return 0;
 }
 
+=======
+>>>>>>> 5aad421... Add cryptfs_hw
 static int get_keymaster_version()
 {
     int rc = -1;
@@ -530,21 +664,35 @@ static int get_keymaster_version()
 
 int should_use_keymaster()
 {
+<<<<<<< HEAD
 #ifdef LEGACY_HW_DISK_ENCRYPTION
     /*
      * HW FDE key would be tied to keymaster only if
      * new Keymaster is available
+=======
+    /* HW FDE key would be tied to keymaster only if:
+     * New Keymaster is available
+     * keymaster partition exists on the device
+>>>>>>> 5aad421... Add cryptfs_hw
      */
     int rc = 0;
     if (get_keymaster_version() != KEYMASTER_MODULE_API_VERSION_1_0) {
         SLOGI("Keymaster version is not 1.0");
         return rc;
     }
+<<<<<<< HEAD
 #else
     /*
      * HW FDE key should be tied to keymaster
      */
 #endif
+=======
+
+    if (access(KEYMASTER_PARTITION_NAME, F_OK) == -1) {
+        SLOGI("Keymaster partition does not exists");
+        return rc;
+    }
+>>>>>>> 5aad421... Add cryptfs_hw
 
     return 1;
 }
