@@ -209,6 +209,7 @@
          to maximize power savings but not all devices support it.
          Refer to power.h for details. -->
     <bool name="config_powerDecoupleInteractiveModeFromDisplay">true</bool>
+
     <!-- Default list of files pinned by the Pinner Service -->
     <string-array translatable="false" name="config_defaultPinnerServiceFiles">
         <item>"/system/framework/arm64/boot-framework.oat"</item>
