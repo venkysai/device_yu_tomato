@@ -34,6 +34,7 @@ extern "C" {
 #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 int set_hw_device_encryption_key(const char*, const char*);
 int update_hw_device_encryption_key(const char*, const char*, const char*);
 int clear_hw_device_encryption_key();
@@ -43,6 +44,11 @@ int set_hw_device_encryption_key(const char*, const char*);
 int update_hw_device_encryption_key(const char*, const char*, const char*);
 int clear_hw_device_encryption_key(void);
 >>>>>>> 5aad421... Add cryptfs_hw
+=======
+int set_hw_device_encryption_key(const char*, const char*);
+int update_hw_device_encryption_key(const char*, const char*, const char*);
+int clear_hw_device_encryption_key();
+>>>>>>> df89fd3... Update cryptfs_hw
 unsigned int is_hw_disk_encryption(const char*);
 unsigned int is_hw_fde_enabled(void);
 int is_ice_enabled(void);
