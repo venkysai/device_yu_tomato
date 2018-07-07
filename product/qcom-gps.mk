@@ -1,16 +1,18 @@
 # GPS
 PRODUCT_PACKAGES += \
 <<<<<<< HEAD
+<<<<<<< HEAD
     android.hardware.gnss@1.0-impl \
     gps.msm8916 \
     libshims_flp \
     libshims_get_process_name \
-    gps.msm8916
+    gps.msm8916 \
     libgnsspps
 
 # GNSS HAL
 PRODUCT_PACKAGES += \
-    android.hardware.gnss@1.0-impl
+    android.hardware.gnss@1.0-impl \
+    android.hardware.gnss@1.0-service
 
 # GPS Shim
 PRODUCT_PACKAGES += \
